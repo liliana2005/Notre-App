@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Donation = require('../models/Donation');
+const Project = require('../models/Project'); 
+const { notify } = require('./notificationController'); // Import the notify function
 
 // @desc    Create a new donation
 // @route   POST /api/donations
@@ -38,7 +40,13 @@ const createDonation = asyncHandler(async (req, res) => {
     await Project.findByIdAndUpdate(project, {
              $inc: { totalDonations: amount }
          });
-    
+     
+         await notify(
+            'org',
+            projectExists.user,  // ID of the organization that owns the project
+            `💰 A user has donated ${amount} ${currency || 'DZD'} to your project "${projectExists.title}".`
+          );
+
     res.status(201).json(donation);
 });
  

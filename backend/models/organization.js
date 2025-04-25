@@ -6,6 +6,7 @@ const organizationSchema = new mongoose.Schema({
     email:{type:String, required:true, unique:true},
     phone:{type:String },
     address:{type:String},
+    expoPushToken: String,
     description:{type:String},
     password:{type:String, required: true},
     profilePicture:{type: String, default:""},
@@ -17,9 +18,17 @@ const organizationSchema = new mongoose.Schema({
         instagram:{type: String, default:""},
         linkedin:{type: String, default:""},
     },
+    notifications: [
+        {
+          message: String,
+          read: { type: Boolean, default: false },
+          timestamp: { type: Date, default: Date.now }
+        }
+      ],
     status:{type:String, enum:['pending', 'approved', 'rejected'], default:'pending'},
     logo:{type: String, default:''},
-
+    resetCode: Number,
+    resetCodeExpires: Date,
 });
 
 organizationSchema.pre("save", async function(next) {

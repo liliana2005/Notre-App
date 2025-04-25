@@ -1,6 +1,6 @@
 const Project = require("../models/Project");
 const asyncHandler = require("express-async-handler");
-
+const {notify} = require("./notificationController");
 // @desc Créer un projet
 // @route POST /api/projects
 // @access Private (Seuls les utilisateurs connectés)
@@ -22,6 +22,13 @@ const createProject = asyncHandler(async (req, res) => {
   });
 
   const createdProject = await project.save();
+
+  //  Notify the organization that their project was created
+  await notify('org', req.user._id, ` Your project "${title}" has been created and is pending approval.`);
+
+  //If you have an approval logic later (e.g., admin approves), call:
+  //await notify('org', orgId, ` Your project "${title}" has been approved and is now public.`);
+
   res.status(201).json(createdProject);
 });
 

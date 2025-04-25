@@ -1,7 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
-const Organization = require('../models/organization');
+const Organization = require('../models/Organization');
 const Donation = require('../models/Donation');
+const Project = require('../models/Project');
+const { notify } = require('./notificationController');
 
 //@desc Get all users 
 //@route GET /api/admin/users
@@ -15,7 +17,8 @@ const getUsers = asyncHandler(async (req,res)=>{
 //@route GET /api/admin/organizations
 //@access Private (Admin only)
 
-const getOrganizations = asyncHandler(async (req, res) => {    const organozations= await Organization.find({});
+const getOrganizations = asyncHandler(async (req, res) => {   
+    const organozations = await Organization.find({});
     res.status(200).json(organizations);
 });
 
@@ -106,13 +109,67 @@ const approveOrganization = asyncHandler(async (req,res)=>{
     organization.status = status;
     const updatedOrganization = await organization.save();
 
+    if (status === 'approved') {
+        await notify(
+          'org',
+          organization._id,
+          `✅ Your registration has been approved. Welcome to the platform!`
+        );
+      } else if (status === 'rejected') {
+        await notify(
+          'org',
+          organization._id,
+          `❌ Your registration has been rejected. Please contact support.`
+        );
+      }
+
     res.status(200).json(updatedOrganization);
 });
 
 
 
+
+//@desc Approve or reject a project
+//@route PUT /api/admin/projects/:id/approve
+//@access Private (Admin only)
+const approveProject = asyncHandler(async (req, res) => {
+    const { status } = req.body;
+
+    const project = await Project.findById(req.params.id);
+    if (!project) {
+        res.status(404);
+        throw new Error('Project not found');
+    }
+
+    // Only allow specific statuses
+    const allowedStatuses = ['pending', 'approved', 'rejected'];
+    if (!allowedStatuses.includes(status)) {
+        res.status(400);
+        throw new Error('Invalid status. Allowed: pending, approved, rejected');
+    }
+
+    project.status = status;
+    const updatedProject = await project.save();
+
+    // Optional: notify organization when approved
+
+    await notify(
+        'org',
+        project.user, // assuming project.user is the org ID
+        `✅ Your project "${project.title}" has been ${status} by the admin.`
+    );
+
+    if (status === 'approved') {
+        const users = await User.find({}, '_id');
+        for (let user of users) {
+          await notify('user', user._id, `📢 A new project "${project.title}" has just been launched!`);
+        }
+      }
+    res.status(200).json(updatedProject);
+});
+
 //@desc Get all donations (with filters for projects/users)
-//@route GET /aoi/admin/donations
+//@route GET /api/admin/donations
 //@access Private (Admin Only)
 const getDonations = asyncHandler(async (req,res)=>{
     const donations = await Donation.find({})
@@ -161,7 +218,7 @@ const totalDonations = await Donation.aggregate([{ $group: { _id:null, total: { 
         organizations,
         donations,
         totalDonations: totalDonations[0]?.total || 0,
-    s    });
+       });
 });
 
 
@@ -174,7 +231,8 @@ module.exports = {
     deleteUser,
     updateOrganization, 
     deleteOrganization, 
-    approveOrganization, 
+    approveOrganization,
+    approveProject, 
     getDonations, 
     updateDonationStatus, 
     getStats };
