@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS
+const API_BASE_URL = 'http//192.168.12.177:5001/api';//'http//localhost:8081/api'; // CHANGE THIS
 
 const SignIn = () => {
   const router = useRouter();
@@ -65,7 +65,8 @@ const SignIn = () => {
         
         router.replace("/(tabs)/home");
       } else {
-        Alert.alert("Login Failed"|| data.message );
+        Alert.alert("Login Failed", data.message || "Something went wrong. Please try again.");
+
       }
     } catch (error) {
       console.error("Login error:", error);

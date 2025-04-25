@@ -26,10 +26,10 @@ const generateVerificationCode = () => Math.floor(100000 + Math.random()* 900000
 // @route POST /api/auth/send-verification-code
 //@access Public
 const sendVerificationCode = asyncHandler(async (req,res)=>{
-    const { firstName, lastName, email } = req.body;
-    if(!firstName || !lastName||!email ){
+    const { fullName,  email } = req.body;
+    if(!fullName || !email ){
         res.status(400);
-        throw new Error("this fields:(firstName, lasttName, email)must be provided")
+        throw new Error("this fields:(fullName, email)must be provided")
     }
 
     let existingUser = await User.findOne({email});//verify if the user already exists
@@ -62,8 +62,7 @@ const sendVerificationCode = asyncHandler(async (req,res)=>{
         pending.lastSentAt = Date.now();
       } else {
         pending = new PendingVerification({
-          firstName,
-          lastName,
+          fullName,
           email,
           code: verificationCode,
           expiresAt: Date.now() + 10 * 60 * 1000,
@@ -89,9 +88,9 @@ const sendVerificationCode = asyncHandler(async (req,res)=>{
 // @route POST /api/auth/complete-signup
 // @access Public
 const completeSignup = asyncHandler(async (req, res) => {
-    const { email, code, password, confirmPassword } = req.body;
+    const { fullName,email, code, password, confirmPassword } = req.body;
 
-    if (!email || !code || !password || !confirmPassword) {
+    if (!fullName || !email || !code || !password || !confirmPassword) {
         return res.status(400).json({ message: "All fields are required." });
       }
     
@@ -109,8 +108,7 @@ const completeSignup = asyncHandler(async (req, res) => {
       
       
       const newUser = new User({
-        firstName: pending.firstName,
-        lastName: pending.lastName,
+        fullName: pending.fullName,
         email: pending.email,
         password,
         emailVerified: true, // optional
@@ -153,8 +151,7 @@ const login = asyncHandler(async (req,res)=>{
     res.json({token, 
         user:{
              id:user.id,
-             firstName: user.firstName,
-             lastName: user.lastName,
+             fullName: user.fullName,
              email: user.email,
              gender: user.gender,
               phone: user.phone

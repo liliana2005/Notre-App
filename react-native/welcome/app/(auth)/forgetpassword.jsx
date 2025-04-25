@@ -1,4 +1,4 @@
-import React from 'react'
+import React , { useState } from  'react'
 import { StyleSheet,Image,View, Text,TouchableOpacity ,TextInput} from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
@@ -6,11 +6,43 @@ import Ionicons  from 'react-native-vector-icons/Ionicons'
 import { MaterialIcons } from '@expo/vector-icons'
 import { Fontisto } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
+import { Alert } from 'react-native';
+import { router } from 'expo-router'
 
+const API_BASE_URL = 'http://192.168.12.177:5001/api';
 const forgetpassword = () => {
    const navigation =useNavigation();
+   const [email, setEmail] = useState('');
+
   const handle =()=>{
-    navigation.navigate("sign-in")
+    navigation.goBack("sign-in");
+  };
+  const handleSendCode = async () => {
+    if (!email) {
+      Alert.alert("Email is required");
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Alert.alert("Success", "Verification code sent to your email");
+        // Navigate to a page for entering the code (if you have one)
+        // navigation.navigate('verify-code');
+        router.replace("/(auth)/verifyphone");
+      } else {
+        Alert.alert("Error", data.message || "Failed to send code");
+      }
+    } catch (error) {
+      console.error('Error sending verification code:', error);
+      Alert.alert("Network Error", "Failed to connect to server");
+    }
   };
 
 
@@ -38,9 +70,16 @@ const forgetpassword = () => {
           <View><Text style={styles.ttext}>Email Address</Text></View>
           <View style={styles.inputContainer}>
               <Fontisto name={"email"} size={20}color={'#581380'} style={styles.inputicon} />
-              <TextInput style={styles.TextInput} placeholder="enter your email"/>
+              <TextInput 
+              style={styles.TextInput}
+              placeholder="enter your email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+               />
            </View>
-           <TouchableOpacity style={styles.loginbotton}>
+           <TouchableOpacity style={styles.loginbotton} onPress={handleSendCode}>
                  <LinearGradient
                       colors={['#CDBDEC', '#7E4ACA', '#4E0976']} // Three color gradient
                     start={{ x: 0, y: 0 }}
@@ -56,7 +95,7 @@ const forgetpassword = () => {
   )
 }
 
-export default forgetpassword
+
 const styles=StyleSheet.create({
   container:{
     backgroundColor:"white",
@@ -139,4 +178,6 @@ const styles=StyleSheet.create({
     color:"white",
     left:130,
    },
+   
 })
+export default forgetpassword;

@@ -23,9 +23,11 @@ const WelcomeScreen = () => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
+      
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Donor</Text>
         </TouchableOpacity>
+      
 
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Organisation</Text>

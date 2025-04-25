@@ -11,6 +11,9 @@ const WelcomeScreen = () => {
     const SignIn =()=>{
      router.push("/(auth)/sign-in")
     };
+    const Signin =()=>{
+      router.push("/(pages)/SignIn")
+     };
    return (
    <View style={styles.container}>
     <ImageBackground 
@@ -45,7 +48,7 @@ const WelcomeScreen = () => {
                  </TouchableOpacity>
 
                  <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Organisation</Text>
+                <Text style={styles.buttonText} onPress={Signin}>Organisation</Text>
                </TouchableOpacity>
         
               </View>

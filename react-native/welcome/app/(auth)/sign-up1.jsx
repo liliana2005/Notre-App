@@ -19,9 +19,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 
+const API_BASE_URL = 'http://192.168.12.177:5001/api';//'http//localhost:8081/api' // CHANGE THIS
+
 const SignUp = () => {
   const router = useRouter();
-  const [fullname, setFullname] = useState('');
+  const [fullName, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [password, setPassword] = useState('');
@@ -35,7 +37,7 @@ const SignUp = () => {
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const inputRefs = {
-    fullname: useRef(null),
+    fullName: useRef(null),
     email: useRef(null),
     verificationCode: useRef(null),
     password: useRef(null),
@@ -84,10 +86,10 @@ const SignUp = () => {
     setIsSendingCode(true);
 
     try {
-      const response = await fetch('https://your-api.com/send-verification', {
+      const response = await fetch(`${API_BASE_URL}/auth/send-verification-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email , fullName }),
       });
 
       if (response.ok) {
@@ -105,7 +107,7 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
-    if (!fullname || !email || !verificationCode || !password || !confirmPassword) {
+    if (!fullName || !email || !verificationCode || !password || !confirmPassword) {
       Alert.alert('Error', 'Please fill all fields');
       return;
     }
@@ -121,10 +123,10 @@ const SignUp = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://your-api.com/signup', {
+      const response = await fetch(`${API_BASE_URL}/auth/complete-signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullname, email, verificationCode, password }),
+        body: JSON.stringify({  fullName , email ,code: verificationCode, password ,confirmPassword  }),
       });
 
       const data = await response.json();
@@ -156,15 +158,15 @@ const SignUp = () => {
           {/* Full Name */}
           <Text style={styles.label}>Full name</Text>
           <TextInput
-            ref={inputRefs.fullname}
+            ref={inputRefs.fullName}
             onFocus={() => {
-              setFocusedField('fullname');
-              measureField('fullname');
+              setFocusedField('fullName');
+              measureField('fullName');
             }}
             onBlur={() => setFocusedField(null)}
             style={styles.input}
             placeholder="Enter your full name"
-            value={fullname}
+            value={fullName}
             onChangeText={setFullname}
             autoCapitalize="words"
           />
@@ -304,7 +306,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 25,
     fontSize: 16,
-    flex: 1,
+    
   },
   codecontainer: {
     flexDirection: 'row',

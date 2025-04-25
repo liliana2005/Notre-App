@@ -3,6 +3,7 @@ import React from 'react'
 import bg from "@/assets/images/profilebg.png"
 import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const Profile = () => {
   const router=useRouter();
@@ -15,6 +16,14 @@ const Profile = () => {
    const serviceconstumer =()=>{
     router.push("/(tabs)/customerservice")
    }
+   const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
+      router.replace('/sign-in');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   return (
    <View style={styles.container}>
        <ImageBackground 
@@ -72,9 +81,11 @@ const Profile = () => {
           <AntDesign name='right' size={22}  style={styles.rightbottum}/>
         </TouchableOpacity>
       </View>
+    
+
 
       {/* Logout Button */}
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
       <AntDesign name='logout' size={25} color={'red'} />
         <Text style={styles.logoutText}>Log out</Text>
       </TouchableOpacity>

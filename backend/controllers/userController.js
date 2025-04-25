@@ -13,8 +13,7 @@ const getUserProfile = asyncHandler(async(req,res)=>{
     }
        res.status(200).json({
           id: user._id,
-          firstName : user.firstName,
-          lastName: user.lastName,
+          fullName : user.fullName,
           email: user.email,
           gender:user.gender,
           phone:user.phone,
@@ -27,15 +26,14 @@ const getUserProfile = asyncHandler(async(req,res)=>{
 // @route PUT /api/user/update
 // @access Private
 const updateUser = asyncHandler(async (req,res)=>{
-    const {firstName , lastName , phone}= req.body;
+    const {fullName , phone}= req.body;
 
     const user = await User.findById(req.user.id);
     if(!user){
         return res.status(404).json({message:"User not found"});
     }
    
-    user.firstName = firstName || user.firstName ;
-    user.lastName = lastName || user.lastName;
+    user.fullName = fullName || user.fullName ;
     user.phone = phone || user.phone;
 
     await user.save();

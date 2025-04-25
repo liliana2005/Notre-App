@@ -16,8 +16,8 @@ const validateToken = asyncHandler(async (req,res,next)=>{
         const decoded = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
         req.user = {
             id: decoded.id,
-            firstName: decoded.firstName || null,
-            lastName : decoded.lastName || null,
+            fullName: decoded.fullName || null,
+            
             email : decoded.email || null,
         };
         next();

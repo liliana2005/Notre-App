@@ -1,8 +1,7 @@
 const  mongoose = require('mongoose');
 
 const pendingVerificationSchema = new mongoose.Schema({
-   firstName : String,
-   lastName : String ,
+   fullName : String,
    email: {type: String , unique: true },
    code : Number,
    expiresAt : Date,

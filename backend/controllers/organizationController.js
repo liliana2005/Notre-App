@@ -2,8 +2,8 @@ const Organization = require('../models/organization');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { response } = require('express');
-
+const {  } = require('express');
+  
 //@desc Register an organization 
 //@route POST /api/organization/register
 //@access Public
@@ -20,7 +20,7 @@ const registerOrganization = asyncHandler(async(req,res)=>{
         name,email, phone, address, description, password
       });
       await organization.save();
-      const token = organization.generayeAuthToken();
+      const token = organization.generateAuthToken();
 
       res.status(201).json({
         _id: organization._id,
@@ -28,33 +28,6 @@ const registerOrganization = asyncHandler(async(req,res)=>{
         email: organization.email,
         token
       });
-});
-
-//@desc Login organization
-//@route POST /api/organization/login
-//@access Public
-const loginOrganization = asyncHandler(async(req,res)=>{
-    const{email, password}= req.body;
-    
-    const organization = await Organization.findone({email});
-    if(!orgnaization){
-        return res.status(400).json({message:'Invalid email or password'});
-    }
-
-    //Check password
-    const isMatch = await organization.comparePassword(password);
-    if(!isMatch){
-        return res.status(400).json({message:'Invalid email or password '});
-    }
-
-    const token = organization.generateAuthToken();
-
-    res.status(200).json({
-    _id: organization._id,
-    name: organization.name,
-    email: organization.email,
-    token
-    });
 });
 
 //@desc Get organization details 
@@ -84,10 +57,10 @@ const updateOrganizationProfile = asyncHandler(async(req,res)=>{
     organization.name = name || organization.name;
     organization.phone = phone || organization.phone;
     organization.address= address || organization.address;
-    organization.description = description || organozation.description;
+    organization.description = description || organization.description;
 
     await organization.save();
-    response.status(200).json({message:'Organization updated successfuly', organization});
+    res.status(200).json({message:'Organization updated successfuly', organization});
 });
 
 //@desc Delete organization account 
@@ -110,11 +83,34 @@ const listOrganizations = asyncHandler (async (req,res)=>{
     res.status(200).json(organizations);
 });
 
+// @desc Change organization password
+// @route PUT /api/organizations/change-password
+// @access Private
+const changeOrganizationPassword = asyncHandler(async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+  
+    const organization = await Organization.findById(req.organization._id);
+  
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+  
+    const isMatch = await bcrypt.compare(oldPassword, organization.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect old password" });
+    }
+  
+    organization.password = await bcrypt.hash(newPassword, 10);
+    await organization.save();
+  
+    res.status(200).json({ message: "Password changed successfully" });
+  });
+
 module.exports = {
     registerOrganization,
-    loginOrganization,
     getOrganizationProfile,
     updateOrganizationProfile,
     deleteOrganizationAccount,
-    listOrganizations
-};
+    listOrganizations,
+    changeOrganizationPassword
+};updateOrganizationProfile

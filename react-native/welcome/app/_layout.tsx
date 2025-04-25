@@ -34,6 +34,7 @@ export default function RootLayout() {
        {/* Main App (Tabs) */}
        <Stack.Screen name="(auth)"/> 
        <Stack.Screen name="(tabs)"/> 
+       <Stack.Screen name="(pages)"/> 
        {/* Other Routes */}
        <Stack.Screen name="not-found" />
        
