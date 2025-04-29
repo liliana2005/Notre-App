@@ -41,5 +41,5 @@ organizationSchema.pre("save", async function(next) {
 
 });
 
-const Organization = mongoose.model("Organization", organizationSchema);
+const Organization = mongoose.models.Organization || mongoose.model('Organization', organizationSchema);
 module.exports = Organization;

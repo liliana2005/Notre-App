@@ -28,10 +28,7 @@ const AuthLayout = () => {
         name='verifyphone'
        options={{headerShown:false}}
      />
-     <Stack.Screen
-        name='index'
-       options={{headerShown:false}}
-     />
+     
     </Stack>
     
    

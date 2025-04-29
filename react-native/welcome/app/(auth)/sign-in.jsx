@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http//192.168.12.177:5001/api';//'http//localhost:8081/api'; // CHANGE THIS
+const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS
 
 const SignIn = () => {
   const router = useRouter();
@@ -23,6 +23,7 @@ const SignIn = () => {
         if (token) {
           // Verify token with backend (optional)
           const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+            method: "GET",
             headers: { 'Authorization': `Bearer ${token}` }
           });
           

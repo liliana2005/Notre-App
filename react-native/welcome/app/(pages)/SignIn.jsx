@@ -17,9 +17,9 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router';
-const API_BASE_URL = 'http://192.168.137.1:5001/api'; // CHANGE THIS TO YOUR ACTUAL API URL
+const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS TO YOUR ACTUAL API URL
 
-const SignIn = () => {
+const Sign = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,12 +32,12 @@ const SignIn = () => {
         const token = await AsyncStorage.getItem("authToken");
         if (token) {
           // Verify token with backend (optional)
-          const response = await fetch(`${API_BASE_URL}/auth/validate-token`, {
+          const response = await fetch(`${API_BASE_URL}/orgAuth/validate-token`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           
           if (response.ok) {
-            router.replace("/(pages)/home2");
+            router.replace("/(pages)/Home2");
           } else {
             await AsyncStorage.removeItem("authToken");
           }
@@ -59,7 +59,7 @@ const SignIn = () => {
     
     
     try {
-      const response = await fetch(`${API_BASE_URL}/organization/login`, {
+      const response = await fetch(`${API_BASE_URL}/orgAuth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -71,9 +71,10 @@ const SignIn = () => {
 
       if (response.ok) {
         await AsyncStorage.setItem("authToken", data.token);
-        router.push("/(pages)/home2");
+        router.replace("/(pages)/Home2");
       } else {
-        Alert.alert("Login Failed" ||  data.message);
+        Alert.alert("Login Failed", data.message || "Invalid credentials");
+
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -94,12 +95,12 @@ const SignIn = () => {
     );
   }
   const ForgotPassword = () => {
-    router.push("/(pages)/Forgetpass");
+    router.push("/(pages)/Home2");
   };
   return (
      <View style={styles.container1}>
           {/* Back Arrow */}
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={30} color="purple" />
           </TouchableOpacity>
 
@@ -355,4 +356,4 @@ container1: {
   },
 });
 
-export default SignIn;
+export default Sign;

@@ -2,7 +2,7 @@ const Organization = require('../models/organization');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {  } = require('express');
+const { response } = require('express');
   
 //@desc Register an organization 
 //@route POST /api/organization/register
@@ -20,7 +20,7 @@ const registerOrganization = asyncHandler(async(req,res)=>{
         name,email, phone, address, description, password
       });
       await organization.save();
-      const token = organization.generateAuthToken();
+      const token = organization.generayeAuthToken();
 
       res.status(201).json({
         _id: organization._id,
@@ -57,10 +57,10 @@ const updateOrganizationProfile = asyncHandler(async(req,res)=>{
     organization.name = name || organization.name;
     organization.phone = phone || organization.phone;
     organization.address= address || organization.address;
-    organization.description = description || organization.description;
+    organization.description = description || organozation.description;
 
     await organization.save();
-    res.status(200).json({message:'Organization updated successfuly', organization});
+    response.status(200).json({message:'Organization updated successfuly', organization});
 });
 
 //@desc Delete organization account 
@@ -113,4 +113,4 @@ module.exports = {
     deleteOrganizationAccount,
     listOrganizations,
     changeOrganizationPassword
-};updateOrganizationProfile
+};

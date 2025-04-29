@@ -1,7 +1,7 @@
 //Authentification routes: → Routes for signup/login
 const express = require("express");//a framework to create servers
 const {sendVerificationCode,completeSignup, login, logout} = require("../controllers/authController");
-const passwordController = require('../controllers/passwordController');
+//const passwordController = require('../controllers/passwordController');
 const { forgotPassword, resetPassword } = require("../controllers/passwordController");
 const validateToken = require("../middleware/validateToken");
 const roleMiddleware = require("../middleware/roleMiddleware")
@@ -9,8 +9,8 @@ const roleMiddleware = require("../middleware/roleMiddleware")
 const router = express.Router();
     //creates a mini-router that helps organize routes in a seperate file
 
-    router.post('/send-verification-code', sendVerificationCode);
-    router.post('/complete-signup', completeSignup);
+router.post('/send-verification-code', sendVerificationCode);
+router.post('/complete-signup', completeSignup);
 router.post("/login",login);
 router.post("/logout", logout);
 router.post("/forgot-password", forgotPassword);

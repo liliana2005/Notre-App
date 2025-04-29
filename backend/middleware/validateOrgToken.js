@@ -23,6 +23,9 @@ const validateOrgToken = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
+  app.get('/orgAuth/validate-token', validateOrgToken, (req, res) => {
+    res.status(200).json({ message: "Token is valid", user: req.user });  
+  });
 });
 
 module.exports = validateOrgToken;

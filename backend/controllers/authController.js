@@ -1,4 +1,4 @@
-  //→ Signup/Login logic
+//→ Signup/Login logic
 //#user authentification logic
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');//library used to hash passwords
@@ -26,10 +26,10 @@ const generateVerificationCode = () => Math.floor(100000 + Math.random()* 900000
 // @route POST /api/auth/send-verification-code
 //@access Public
 const sendVerificationCode = asyncHandler(async (req,res)=>{
-    const { fullName,  email } = req.body;
-    if(!fullName || !email ){
+    const { fullName , email } = req.body;
+    if( !fullName || !email ){
         res.status(400);
-        throw new Error("this fields:(fullName, email)must be provided")
+        throw new Error("this fields:( fullName , email)must be provided")
     }
 
     let existingUser = await User.findOne({email});//verify if the user already exists
@@ -88,9 +88,9 @@ const sendVerificationCode = asyncHandler(async (req,res)=>{
 // @route POST /api/auth/complete-signup
 // @access Public
 const completeSignup = asyncHandler(async (req, res) => {
-    const { fullName,email, code, password, confirmPassword } = req.body;
+    const { fullName ,email, code, password, confirmPassword } = req.body;
 
-    if (!fullName || !email || !code || !password || !confirmPassword) {
+    if ( !fullName || !email || !code || !password || !confirmPassword) {
         return res.status(400).json({ message: "All fields are required." });
       }
     
@@ -108,7 +108,7 @@ const completeSignup = asyncHandler(async (req, res) => {
       
       
       const newUser = new User({
-        fullName: pending.fullName,
+        fullName : pending.fullName,
         email: pending.email,
         password,
         emailVerified: true, // optional
@@ -151,7 +151,7 @@ const login = asyncHandler(async (req,res)=>{
     res.json({token, 
         user:{
              id:user.id,
-             fullName: user.fullName,
+             fullName : user.fullName , 
              email: user.email,
              gender: user.gender,
               phone: user.phone

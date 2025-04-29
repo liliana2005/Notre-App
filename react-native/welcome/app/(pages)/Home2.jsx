@@ -3,6 +3,10 @@ import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Platform, A
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import Bar from './Bar';
+import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 // Sample project data
 const  sampleProjects= [
   {
@@ -132,6 +136,14 @@ const Home = () => {
   const calculatePercentage = (collected, target) => {
     return Math.min(100, Math.round((collected / target) * 100));
   };
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
+      router.replace('/SignIn');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <View style={styles.pageContainer}> {/* Changed from ScrollView to View as outer container */}
@@ -140,6 +152,11 @@ const Home = () => {
       <View style={styles.container}>
         <Image source={require('@/assets/logo2.png')} style={styles.logo} />
         
+        <TouchableOpacity style={styles.logoutButton}  onPress={handleLogout} >
+          <AntDesign name='logout' size={25} color={'red'} />
+          <Text style={styles.logoutText}>Log out</Text>
+        </TouchableOpacity>
+
         <View style={styles.profileSection}>
           <TouchableOpacity 
             style={styles.profileCircle} 
@@ -305,7 +322,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 50,
     height: 50,
-    top: 6,
+    top: 14,
     resizeMode: 'contain',
     marginBottom: 20,
   },
@@ -443,6 +460,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#581380',
     alignSelf: 'flex-end',
+  },
+  logoutButton: {
+    flexDirection:'row',
+    marginLeft: 230,
+    bottom:40,
+    
+   },
+   logoutText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft:10,
   },
 });
 

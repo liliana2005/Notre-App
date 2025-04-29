@@ -16,8 +16,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 
-const API_BASE_URL = 'http://your-api-url.com/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 const SignupNext = () => {
   const navigation = useNavigation();
@@ -27,7 +28,7 @@ const SignupNext = () => {
     verificationCode: "",
     password: "",
     confirmPassword: "",
-    phoneNumber: "",
+    phone: "",
     driveLink: ""
   });
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -36,12 +37,16 @@ const SignupNext = () => {
   const [isResendDisabled, setIsResendDisabled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validatename = (name) => {
+    const re = /^[a-zA-Z\s]+$/; // Only allows alphabets and spaces
+    return re.test(name);
+  };
   const validateEmail = useCallback((email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
   }, []);
 
-  const validatePhoneNumber = useCallback((phone) => {
+  const validatephone = useCallback((phone) => {
     const re = /^[0-9]+$/;
     return re.test(phone) && phone.length === 10;
   }, []);
@@ -54,7 +59,7 @@ const SignupNext = () => {
 
   const validateForm = useCallback(() => {
     const newErrors = {};
-    const { name,email, verificationCode, password, confirmPassword, phoneNumber, driveLink } = formData;
+    const { name , email, verificationCode, password, confirmPassword, phone, driveLink } = formData;
     if (!name) {
       newErrors.name = "name is required";
     } else if (!validatename(name)) {
@@ -84,10 +89,10 @@ const SignupNext = () => {
       newErrors.confirmPassword = "Passwords don't match";
     }
 
-    if (!phoneNumber) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!validatePhoneNumber(phoneNumber)) {
-      newErrors.phoneNumber = "Phone number must be exactly 10 digits";
+    if (!phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!validatephone(phone)) {
+      newErrors.phone = "Phone number must be exactly 10 digits";
     }
 
     if (!driveLink) {
@@ -98,9 +103,14 @@ const SignupNext = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [formData, validateEmail, validatePhoneNumber, validateDriveLink]);
-
+  }, [formData, validateEmail, validatephone, validateDriveLink]);
+// button rej3ih send 
+// dirih yahseb 60 s 
   const handleResendCode = useCallback(async () => {
+    if (!formData.name) {
+      Alert.alert("Error", "Please enter your name first");
+      return;
+       }
     if (!formData.email) {
       Alert.alert("Error", "Please enter your email first");
       return;
@@ -113,24 +123,27 @@ const SignupNext = () => {
     setIsResendDisabled(true);
     
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/send-verification`, {
+      const response = await fetch(`${API_BASE_URL}/orgAuth/send-verification-code`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ email: formData.email , name : formData.name}),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send verification code');
-      }
-
-      Alert.alert("Code Sent", "Verification code has been sent to your email");
-    } catch (error) {
-      Alert.alert("Error", error.message || "Failed to send verification code");
-    } finally {
-      setTimeout(() => setIsResendDisabled(false), 30000);
-    }
+        if (response.ok) {
+              Alert.alert('Success', 'Verification code sent to your email');
+              
+            } else {
+              const data = await response.json();
+              Alert.alert('Error', data.message || 'Failed to send code');
+            }
+          } catch {
+            Alert.alert('Error', 'Network request failed');
+          } finally {
+            setTimeout(() => setIsResendDisabled(false), 30000);
+          }
+  
   }, [formData.email, validateEmail]);
 
   const handleInputChange = useCallback((name, value) => {
@@ -151,36 +164,42 @@ const SignupNext = () => {
     setIsSubmitting(true);
     
     try {
-      const verifyResponse = await fetch(`${API_BASE_URL}/auth/verify-code`, {
+      const response = await fetch(`${API_BASE_URL}/orgAuth/complete-signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          name : formData.name,
           email: formData.email,
-          code: formData.verificationCode
+          code: formData.verificationCode,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          phone: formData.phone,
+          driveLink: formData.driveLink,
+
         }),
       });
   
-      if (!verifyResponse.ok) {
+      /*if (!verifyResponse.ok) {
         throw new Error('Invalid verification code');
+      }*/
+      // rah ndir modificartion hna w rah nahi navigation w nremplaciha b router
+      if (response.ok) {
+        await AsyncStorage.setItem('authToken', data.token);
+        router.replace('/(pages)/Home2');
+      } else {
+        Alert.alert('Error', data.message || 'Sign up failed');
       }
-  
-      navigation.navigate('Home', {
-        name:formData.name,
-        email: formData.email,
-        password: formData.password,
-        verificationCode: formData.verificationCode,
-        phoneNumber: formData.phoneNumber,
-        driveLink: formData.driveLink
-      });
-  
-    } catch (error) {
-      Alert.alert("Error", error.message || "Verification failed. Please try again.");
+    } catch {
+      Alert.alert('Error', 'Network request failed');
     } finally {
       setIsSubmitting(false);
     }
-  }, [validateForm, navigation, formData]);
+    
+  
+  
+  }, [validateForm, router , formData]);
 
   return (
     <KeyboardAvoidingView
@@ -348,26 +367,26 @@ const SignupNext = () => {
               <Text style={styles.label}>Phone Number</Text>
               <View style={[
                 styles.inputContainer,
-                errors.phoneNumber && { borderColor: 'red' }
+                errors.phone && { borderColor: 'red' }
               ]}>
                 <Ionicons 
                   name="call-outline" 
                   size={20} 
-                  color={errors.phoneNumber ? 'red' : 'purple'} 
+                  color={errors.phone ? 'red' : 'purple'} 
                   style={styles.icon} 
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="Enter your 10-digit phone number"
                   keyboardType="phone-pad"
-                  value={formData.phoneNumber}
-                  onChangeText={(text) => handleInputChange('phoneNumber', text)}
+                  value={formData.phone}
+                  onChangeText={(text) => handleInputChange('phone', text)}
                   maxLength={10}
                   autoComplete="tel"
-                  textContentType="telephoneNumber"
+                  textContentType="telephone"
                 />
               </View>
-              {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber}</Text>}
+              {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
 
               {/* Documentation Link Input */}
               <Text style={styles.label}>Documentation Link</Text>

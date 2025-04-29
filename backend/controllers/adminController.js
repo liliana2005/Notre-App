@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
-const Organization = require('../models/Organization');
+const Organization = require('../models/organization');
 const Donation = require('../models/Donation');
 const Project = require('../models/Project');
 const { notify } = require('./notificationController');

@@ -7,6 +7,7 @@ const {
     updateOrganization,
     deleteOrganization, 
     approveOrganization,
+    approveProject,
     getDonations,
     updateDonationStatus,
     getStats
@@ -25,6 +26,7 @@ router.put('/organizations/:id', adminMiddleware, updateOrganization);
 router.delete('/organizations/:id', adminMiddleware, deleteOrganization);
 router.put('/organizations/:id/approve', adminMiddleware, approveOrganization);
 
+router.put('/projects/:id/approve', adminMiddleware, approveProject);
 
 //Donations Routes
 router.get('/donations', adminMiddleware, getDonations);

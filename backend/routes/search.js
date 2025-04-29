@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const Organisation = require('../models/Organisation');
-const Categorie = require('../models/Categorie');
+const organization = require('../models/organization');
+//const Categorie = require('../models/Categorie');
 
 router.get('/search', async (req, res) => {
   const { q } = req.query;
@@ -13,8 +13,8 @@ router.get('/search', async (req, res) => {
   // Liste dynamique avec plusieurs champs de recherche par modèle
   const searchables = [
     { model: Project, fields: ['title', 'description'], name: 'projects' },
-    { model: Organisation, fields: ['name', 'description'], name: 'organisations' },
-    { model: Categorie, fields: ['name'], name: 'categories' }
+    { model: organization, fields: ['name', 'description'], name: 'organization' },
+  
   ];
 
   const results = {};

@@ -12,19 +12,20 @@ const validateToken = asyncHandler(async (req,res,next)=>{
 
     const token = authHeader.split(" ")[1];
 
-    try{
-        const decoded = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
-        req.user = {
-            id: decoded.id,
-            fullName: decoded.fullName || null,
-            
-            email : decoded.email || null,
+        try{
+            const decoded = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
+            req.user = {
+                id: decoded.id,
+                fullName : decoded.fullName || null,
+                email : decoded.email || null,
         };
         next();
     }catch(err){
        return res.status(401).json({message:"Invalid or expired token"});
     }
-    
+    app.get('/auth/validate-token', validateToken, (req, res) => {
+      res.status(200).json({ message: "Token is valid", user: req.user });  
+    }); 
 });
  
 module.exports = validateToken;

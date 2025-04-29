@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 //the Schema for the user
 const UserSchema = new mongoose.Schema({
+    
     fullName:{
         type:String,
         required:[true,'Please add the user fullName'],
     },
-    
     email:{
         type:String,
         required:[true,'Please add the email address'],
@@ -24,6 +24,14 @@ const UserSchema = new mongoose.Schema({
         type : String,
         enum: ["male","female"]
     },
+    expoPushToken: String,
+    notifications: [
+        {
+          message: String,
+          read: { type: Boolean, default: false },
+          timestamp: { type: Date, default: Date.now }
+        }
+      ],
     phone :Number,
     isAdmin: {
         type: Boolean,

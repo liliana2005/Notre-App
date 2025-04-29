@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const API_BASE_URL = 'http://192.168.12.177:5001/api';//'http//localhost:8081/api' // CHANGE THIS
+const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS
 
 const SignUp = () => {
   const router = useRouter();
@@ -126,7 +126,7 @@ const SignUp = () => {
       const response = await fetch(`${API_BASE_URL}/auth/complete-signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({  fullName , email ,code: verificationCode, password ,confirmPassword  }),
+        body: JSON.stringify({  fullName , email , code: verificationCode, password ,confirmPassword  }),
       });
 
       const data = await response.json();

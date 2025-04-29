@@ -23,11 +23,11 @@ const createProject = asyncHandler(async (req, res) => {
 
   const createdProject = await project.save();
 
-  //  Notify the organization that their project was created
-  await notify('org', req.user._id, ` Your project "${title}" has been created and is pending approval.`);
+  // 🔔 Notify the organization that their project was created
+  await notify('org', req.user._id, `🎉 Your project "${title}" has been created and is pending approval.`);
 
   //If you have an approval logic later (e.g., admin approves), call:
-  //await notify('org', orgId, ` Your project "${title}" has been approved and is now public.`);
+  //await notify('org', orgId, `✅ Your project "${title}" has been approved and is now public.`);
 
   res.status(201).json(createdProject);
 });

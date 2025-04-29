@@ -3,8 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
-const organization = require("../models/organization");
-const  PendingVerification= require("../models/pendingVerification");
+const Organization = require("../models/organization");
+const PendingOrganization = require("../models/pendingOrganization");
 
 const transporter = nodemailer.createTransport({
     service: "Gmail",
@@ -33,10 +33,10 @@ const sendVerificationCode = asyncHandler(async (req, res) => {
     throw new Error("Organization already exists");
   }
 
-  let pending = await PendingVerification.findOne({ email });
+  let pending = await PendingOrganization.findOne({ email });
 
   if (pending && pending.expiresAt < Date.now()) {
-    await PendingVerification.deleteOne({ email });
+    await PendingOrganization.deleteOne({ email });
     pending = null;
     }
 
@@ -52,7 +52,7 @@ const sendVerificationCode = asyncHandler(async (req, res) => {
         pending.expiresAt = Date.now() + 10 * 60 * 1000;
         pending.lastSentAt = Date.now();
       } else {
-        pending = new PendingVerification({
+        pending = new PendingOrganization({
           name,
           email,
           code,
@@ -80,9 +80,9 @@ const sendVerificationCode = asyncHandler(async (req, res) => {
 // @access Public
 
 const completeSignup = asyncHandler(async (req, res) => {
-    const { email, code, password, confirmPassword, phone, documentationLink } = req.body;
+    const { name , email, code, password, confirmPassword, phone, documentationLink } = req.body;
 
-    if (!email || !code || !password || !confirmPassword || !phone || !documentationLink) {
+    if (!name ||!email || !code || !password || !confirmPassword || !phone || !documentationLink) {
         res.status(400);
         throw new Error("All fields are required");
       }
@@ -92,26 +92,27 @@ const completeSignup = asyncHandler(async (req, res) => {
         throw new Error("Passwords do not match");
       }
 
-      const pending = await PendingVerification.findOne({ email });
+      const pending = await PendingOrganization.findOne({ email });
 
       if (!pending || pending.code !== Number(code) || pending.expiresAt < Date.now()) {
         res.status(400);
         throw new Error("Invalid or expired verification code");
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // Nahit l hash method zawja 
+      //const hashedPassword = await bcrypt.hash(password, 10);
 
-      const organization = new Organization({
+      const newOrganization = new Organization({
         name: pending.name,
-        email,
-        password: hashedPassword,
+        email  ,
+        password,//bedelt fiha 
         phone,
         documentationLink,
         status: "approved", // will be reviewed by admin
       });
 
-      await organization.save();
-      await PendingVerification.deleteOne({ email });
+      await newOrganization.save();
+      await PendingOrganization.deleteOne({ email });
 
       res.status(201).json({ message: "Organization registered successfully. Awaiting admin approval." });
     });
@@ -121,12 +122,24 @@ const completeSignup = asyncHandler(async (req, res) => {
     //@access Public
     const login = asyncHandler(async (req, res) => {
         const { email, password } = req.body;
+        if(!email || !password){
+          res.status(400);
+          throw new Error("email and password are required")
+      }
         const org = await Organization.findOne({ email });
+        if ( !org) {
+          res.status(400);
+          throw new Error("org not found");
+        }
+      if ( !(await bcrypt.compare(password, org.password))) {
+        res.status(400);
+        throw new Error("Invalid credentials");
+      }
 
-        if (!org || !(await bcrypt.compare(password, org.password))) {
+        /*if (!org || !(await bcrypt.compare(password, org.password))) {
             res.status(400);
             throw new Error("Invalid credentials");
-          }
+          }*/
         
           if (org.status !== "approved") {
             res.status(403);
@@ -137,7 +150,7 @@ const completeSignup = asyncHandler(async (req, res) => {
 
           res.status(200).json({
             token,
-            organization: {
+            Organization: {
               id: org._id,
               name: org.name,
               email: org.email,

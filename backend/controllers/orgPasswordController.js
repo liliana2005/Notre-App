@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const Organization = require('../models/Organization');
+const Organization = require('../models/organization');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 

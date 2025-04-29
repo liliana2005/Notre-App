@@ -33,7 +33,7 @@ app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // ✅ Dev-only route
 app.post('/api/dev/make-admin', asyncHandler(async (req, res) => {
-    const user = await User.findOne({ email: "admin@example.com" });
+    const user = await user.findOne({ email: "admin@example.com" });
     if (!user) {
       res.status(404);
       throw new Error("User not found");
