@@ -20,10 +20,9 @@ const UserSchema = new mongoose.Schema({
         type: String,//TO STORE THE CLOUDINARY URL
         default: '',
     },
-    gender:{
-        type : String,
-        enum: ["male","female"]
-    },
+    phone :{type:Number,
+        default: '',
+    },  
     expoPushToken: String,
     notifications: [
         {
@@ -32,7 +31,7 @@ const UserSchema = new mongoose.Schema({
           timestamp: { type: Date, default: Date.now }
         }
       ],
-    phone :Number,
+   
     isAdmin: {
         type: Boolean,
         default: false, // Default to false (regular user)
@@ -47,8 +46,11 @@ const UserSchema = new mongoose.Schema({
         default:"donor"//default role is donor
     },
     emailVerified:{type:Boolean, default:false},
-    emailVerificationCode : String ,
-    emailVerificationCode : Date, 
+    emailVerificationCode: {
+        code: String,
+        expiresAt: Date
+      },
+      
     //Password reset fields
     resetCode : Number,
     resetCodeExpires : Date

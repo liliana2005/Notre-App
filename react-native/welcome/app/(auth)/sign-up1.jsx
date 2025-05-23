@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 
-const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS
+const API_BASE_URL = 'http://192.168.150.138:5001/api'; // CHANGE THIS
 
 const SignUp = () => {
   const router = useRouter();

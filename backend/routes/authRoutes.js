@@ -28,7 +28,10 @@ router.put("/reset-password", resetPassword);
  router.post("/donate", validateToken , roleMiddleware(["donor"]),(req,res)=>{
     res.json({message:"Donation suuccessful"});
  });
-
+ router.get("/validate-token", validateToken, (req, res) => {
+   res.status(200).json({ message: "Token is valid", user: req.user });
+ });
+ 
 
 module.exports = router;
 

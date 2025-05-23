@@ -5,7 +5,7 @@ const{registerOrganization, changeOrganizationPassword, getOrganizationProfile,u
 const roleMiddleware = require("../middleware/roleMiddleware")
 
 const router = express.Router();
- router.post('/register', registerOrganization);
+ //router.post('/register', registerOrganization);
 
 
  router.get('/profile',validateOrgToken, getOrganizationProfile);

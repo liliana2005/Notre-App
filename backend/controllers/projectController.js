@@ -18,13 +18,13 @@ const createProject = asyncHandler(async (req, res) => {
     fundingGoal,
     category,
     imageUrl,
-    user: req.user._id,  // L'utilisateur connecté
+    organization: req.organization._id,  // L'utilisateur connecté
   });
 
   const createdProject = await project.save();
 
   // 🔔 Notify the organization that their project was created
-  await notify('org', req.user._id, `🎉 Your project "${title}" has been created and is pending approval.`);
+  await notify('org', req.organization._id, `🎉 Your project "${title}" has been created and is pending approval.`);
 
   //If you have an approval logic later (e.g., admin approves), call:
   //await notify('org', orgId, `✅ Your project "${title}" has been approved and is now public.`);
@@ -53,7 +53,7 @@ const updateProject = asyncHandler(async (req, res) => {
   }
 
   // Vérifier si l'utilisateur est le créateur ou un admin
-  if (project.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+  if (project.user.toString() !== req.organization._id.toString() && !req.user.isAdmin) {
     res.status(403);
     throw new Error("Vous n'avez pas la permission de modifier ce projet.");
   }
@@ -79,7 +79,7 @@ const deleteProject = asyncHandler(async (req, res) => {
     throw new Error("Projet non trouvé.");
   }
 
-  if (project.user.toString() !== req.user._id.toString() && !req.user.isAdmin) {
+  if (project.organization.toString() !== req.organization._id.toString() && !req.user.isAdmin) {
     res.status(403);
     throw new Error("Vous n'avez pas la permission de supprimer ce projet.");
   }

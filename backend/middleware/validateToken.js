@@ -5,8 +5,9 @@ const asyncHandler =require("express-async-handler");
 
 const validateToken = asyncHandler(async (req,res,next)=>{
    const authHeader = req.headers["authorization"];
-
+   
     if(!authHeader || !authHeader.startsWith("Bearer ")){
+        console.warn("Aucun token trouvé !");
          return res.status(401).json({message:"User is not authorized or token is missing"});
     }
 
@@ -18,14 +19,13 @@ const validateToken = asyncHandler(async (req,res,next)=>{
                 id: decoded.id,
                 fullName : decoded.fullName || null,
                 email : decoded.email || null,
+                role: decoded.role,
         };
         next();
     }catch(err){
        return res.status(401).json({message:"Invalid or expired token"});
     }
-    app.get('/auth/validate-token', validateToken, (req, res) => {
-      res.status(200).json({ message: "Token is valid", user: req.user });  
-    }); 
+   
 });
  
 module.exports = validateToken;

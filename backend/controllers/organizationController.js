@@ -3,32 +3,7 @@ const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { response } = require('express');
-  
-//@desc Register an organization 
-//@route POST /api/organization/register
-//@access Public
-const registerOrganization = asyncHandler(async(req,res)=>{
-    const{name, email, phone, address, description, password} =req.body;
 
-    const organizationExists = await Organization.findOne({email});
-    if(organizationExists){
-        return res.status(400).json({message:'Oragnization already exists'});
-      }
-
-      //Create new organization
-      const organization = new Organization({
-        name,email, phone, address, description, password
-      });
-      await organization.save();
-      const token = organization.generayeAuthToken();
-
-      res.status(201).json({
-        _id: organization._id,
-        name: organization.name,
-        email: organization.email,
-        token
-      });
-});
 
 //@desc Get organization details 
 //@route GET /api/organizations/profile
@@ -57,7 +32,7 @@ const updateOrganizationProfile = asyncHandler(async(req,res)=>{
     organization.name = name || organization.name;
     organization.phone = phone || organization.phone;
     organization.address= address || organization.address;
-    organization.description = description || organozation.description;
+    organization.description = description || organization.description;
 
     await organization.save();
     response.status(200).json({message:'Organization updated successfuly', organization});
@@ -107,7 +82,7 @@ const changeOrganizationPassword = asyncHandler(async (req, res) => {
   });
 
 module.exports = {
-    registerOrganization,
+   
     getOrganizationProfile,
     updateOrganizationProfile,
     deleteOrganizationAccount,

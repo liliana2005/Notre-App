@@ -7,13 +7,14 @@ import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS
+const API_BASE_URL = 'http://192.168.150.138:5001/api'; // CHANGE THIS
 
 const SignIn = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Auto-login check
   useEffect(() => {
@@ -29,6 +30,7 @@ const SignIn = () => {
           
           if (response.ok) {
             router.replace("/(tabs)/home");
+            return;
           } else {
             await AsyncStorage.removeItem("authToken");
           }

@@ -55,7 +55,7 @@ const sendVerificationCode = asyncHandler(async (req, res) => {
         pending = new PendingOrganization({
           name,
           email,
-          code,
+          code:code,
           expiresAt: Date.now() + 10 * 60 * 1000,
           lastSentAt: Date.now(),
         });
@@ -94,9 +94,19 @@ const completeSignup = asyncHandler(async (req, res) => {
 
       const pending = await PendingOrganization.findOne({ email });
 
-      if (!pending || pending.code !== Number(code) || pending.expiresAt < Date.now()) {
+      if (!pending) {
         res.status(400);
-        throw new Error("Invalid or expired verification code");
+        throw new Error("No verification code found for this email");
+      }
+      
+      if (String(pending.code) !== String(code)) {
+        res.status(400);
+        throw new Error("Incorrect verification code");
+      }
+      
+      if (pending.expiresAt < Date.now()) {
+        res.status(400);
+        throw new Error("Verification code has expired");
       }
 
       // Nahit l hash method zawja 
@@ -104,17 +114,38 @@ const completeSignup = asyncHandler(async (req, res) => {
 
       const newOrganization = new Organization({
         name: pending.name,
-        email  ,
+        email: pending.email, 
         password,//bedelt fiha 
         phone,
         documentationLink,
         status: "approved", // will be reviewed by admin
       });
 
-      await newOrganization.save();
-      await PendingOrganization.deleteOne({ email });
-
-      res.status(201).json({ message: "Organization registered successfully. Awaiting admin approval." });
+      //await newOrganization.save();
+      //await PendingOrganization.deleteOne({ email });
+     try {
+           await newOrganization.save();
+          console.log("User saved successfully");
+      }    catch (error) {
+          console.error("Error saving user:", error);
+      }
+        await PendingOrganization.deleteOne({ email });
+    
+     // res.status(201).json({ message: "Signup successful!" });
+     const token = jwt.sign({ id: newOrganization._id }, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: "1h",
+    });
+     // res.status(201).json({ message: "Organization registered successfully. Awaiting admin approval." });
+     res.status(201).json({
+      token,
+      Organization: {
+        id: newOrganization._id,
+        name: newOrganization.name,
+        email: newOrganization.email,
+        phone: newOrganization.phone,
+        status: newOrganization.status,
+      },
+    });
     });
 
     //@desc Login user & return token

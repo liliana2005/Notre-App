@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Alert } from 'react-native';
 import { router } from 'expo-router'
 
-const API_BASE_URL = 'http://192.168.12.177:5001/api';
+const API_BASE_URL = 'http://192.168.150.138:5001/api';
 const forgetpassword = () => {
    const navigation =useNavigation();
    const [email, setEmail] = useState('');

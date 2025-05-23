@@ -10,7 +10,8 @@ const fs = require('fs');
 //@access Private
 const handleUpload = asyncHandler(async (req,res)=>{
     const file = req.file;
-    const {userId, type, projectId, organizationId} = req.body;
+    const { type, projectId, organizationId} = req.body;
+    const userId = req.user.id;
 
     if(!file){
         res.status(400);

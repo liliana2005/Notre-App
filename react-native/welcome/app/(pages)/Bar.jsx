@@ -1,24 +1,22 @@
 import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation, useRoute } from '@react-navigation/native';
-
+import { useRouter,usePathname } from 'expo-router';
 const Bar = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const [hasNotifications] = React.useState(true);
+  const router = useRouter();
+const pathname = usePathname();
+const [hasNotifications] = React.useState(true);
 
-  // Determine active tab based on current route
-  const isHomeActive = route.name === 'Home';
-  const isNotificationActive = route.name === 'Notification';
-
+// Determine active tab based on current pathname
+const isHomeActive = pathname === '/Home2';
+const isNotificationActive = pathname === '/Notification';
   return (
     <View style={styles.container}>
       <View style={styles.bottomBar}>
         {/* Profile/Home Button */}
         <TouchableOpacity
           style={styles.profileButton} 
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => router.push("/Home2")}
         >
           <View style={[
             styles.profileIconContainer,
@@ -38,7 +36,7 @@ const Bar = () => {
         {/* Floating Add Button */}
         <TouchableOpacity 
           style={styles.floatingButton}
-          onPress={() => navigation.navigate('NewProject')}
+          onPress={() => router.push("/NewProject")}
         >
           <View style={styles.addButton}>
             <View style={styles.addButtonInner}>
@@ -50,7 +48,7 @@ const Bar = () => {
         {/* Notifications Button */}
         <TouchableOpacity 
           style={styles.notificationButton} 
-          onPress={() => navigation.navigate('Notification')}
+          onPress={() => router.push("/Notification")}
         >
           <View>
             <Icon 
@@ -73,7 +71,7 @@ const Bar = () => {
 };
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+     
       justifyContent: 'flex-end',
       backgroundColor: 'white', // Add background for shadow visibility
     },

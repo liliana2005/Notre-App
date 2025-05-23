@@ -17,7 +17,7 @@ import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router } from 'expo-router';
-const API_BASE_URL = 'http://localhost:5001/api'; // CHANGE THIS TO YOUR ACTUAL API URL
+const API_BASE_URL = 'http://192.168.150.138:5001/api'; // CHANGE THIS TO YOUR ACTUAL API URL
 
 const Sign = () => {
   const router = useRouter();
@@ -29,7 +29,7 @@ const Sign = () => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const token = await AsyncStorage.getItem("authToken");
+        const token = await AsyncStorage.getItem("orgauthToken");
         if (token) {
           // Verify token with backend (optional)
           const response = await fetch(`${API_BASE_URL}/orgAuth/validate-token`, {
@@ -39,7 +39,7 @@ const Sign = () => {
           if (response.ok) {
             router.replace("/(pages)/Home2");
           } else {
-            await AsyncStorage.removeItem("authToken");
+            await AsyncStorage.removeItem("orgauthToken");
           }
         }
       } catch (error) {
@@ -70,7 +70,7 @@ const Sign = () => {
       const data = await response.json();
 
       if (response.ok) {
-        await AsyncStorage.setItem("authToken", data.token);
+        await AsyncStorage.setItem("orgauthToken", data.token);
         router.replace("/(pages)/Home2");
       } else {
         Alert.alert("Login Failed", data.message || "Invalid credentials");
@@ -252,26 +252,27 @@ container1: {
     width: '100%',
   },
   label: {
-    color: 'purple',
+    color: '#581380',
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 5,
+    fontWeight: '500',
+    
+    
   },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 25,
-    borderWidth: 2,
-    borderColor: 'purple',
+    borderWidth: 1,
+    borderColor:'#581380',
     paddingHorizontal: 10,
     paddingVertical: 6,
     marginHorizontal: 12,
-    marginVertical: 0,
+    marginBottom:10,
   },
   icon: {
     marginHorizontal: 5,
-    color: 'purple',
+    color: '#581380',
   },
   input: {
     flex: 1,

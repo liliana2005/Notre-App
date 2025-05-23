@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet, TouchableOpacity,Platform,KeyboardAvoidingView, Dimensions, TextInput } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity, Platform, KeyboardAvoidingView, Dimensions, TextInput } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient'; // Import gradient for the button
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 
-const NewProject = () => {
-      const navigation = useNavigation();
+const NewProject = ({ route }) => {
+  const navigation = useNavigation();
+  const { addProject } = route.params || {}; // Get the addProject function from route params
   
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState('Category');
@@ -17,7 +18,6 @@ const NewProject = () => {
   const [quantity, setQuantity] = useState('');
   const [deadline, setDeadline] = useState('');
 
-  
   const handleUploadImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -37,7 +37,6 @@ const NewProject = () => {
     }
   };
 
-  // Date formatting function
   const formatDateInput = (input) => {
     let numbers = input.replace(/\D/g, '');
     if (numbers.length > 8) numbers = numbers.substring(0, 8);
@@ -58,9 +57,76 @@ const NewProject = () => {
   const handleDeadlineChange = (text) => {
     setDeadline(formatDateInput(text));
   };
+
   const handlePost = () => {
-    // Handle post submission
-    console.log("Posting:", { title, description, selectedOption, quantity, deadline });
+    // Validation
+    if (!title.trim()) {
+      alert('Please enter a project title');
+      return;
+    }
+    
+    if (!description.trim()) {
+      alert('Please enter a project description');
+      return;
+    }
+    
+    if (selectedOption === 'Category') {
+      alert('Please select a category');
+      return;
+    }
+    
+    if (!quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
+      alert('Please enter a valid quantity amount');
+      return;
+    }
+    
+    if (!deadline || deadline.length < 10) {
+      alert('Please enter a complete deadline (dd/mm/yyyy)');
+      return;
+    }
+    
+    if (!selectedImage) {
+      alert('Please upload an image for your project');
+      return;
+    }
+
+    // Create the new project object
+    const newProject = {
+      id: Date.now().toString(),
+      name: title.trim(),
+      image: { uri: selectedImage },
+      deadline: deadline,
+      targetAmount: parseInt(quantity),
+      collectedAmount: 0,
+      category: selectedOption,
+      description: description.trim()
+    };
+
+    console.log('Creating project:', newProject); // Debug log
+
+    // Try multiple ways to pass the project back
+    const { addProject, onProjectCreated } = route.params || {};
+    
+    // Method 1: Direct function call
+    if (addProject && typeof addProject === 'function') {
+      console.log('Calling addProject function');
+      addProject(newProject);
+    }
+    
+    // Method 2: Callback function
+    if (onProjectCreated && typeof onProjectCreated === 'function') {
+      console.log('Calling onProjectCreated callback');
+      onProjectCreated(newProject);
+    }
+
+    // Method 3: Navigate back with the project data
+    navigation.navigate('Home', { 
+      newProject: newProject,
+      timestamp: Date.now() // Force re-render
+    });
+    
+    // Show success message
+    alert('Project created successfully!');
   };
 
   return (
@@ -80,125 +146,128 @@ const NewProject = () => {
         </TouchableOpacity>
         <Text style={styles.NewPostText}>New Project</Text>
       
-      {/* Dropdown Selector */}
-      <View style={dropdownStyles.container}>
-        <TouchableOpacity style={dropdownStyles.dropdownBox} onPress={() => setIsOpen(!isOpen)}>
-          <Text style={dropdownStyles.selectedText}>{selectedOption}</Text>
-          <View style={[dropdownStyles.caret, { transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }]} />
-        </TouchableOpacity>
+        {/* Dropdown Selector */}
+        <View style={dropdownStyles.container}>
+          <TouchableOpacity style={dropdownStyles.dropdownBox} onPress={() => setIsOpen(!isOpen)}>
+            <Text style={dropdownStyles.selectedText}>{selectedOption}</Text>
+            <View style={[dropdownStyles.caret, { transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }]} />
+          </TouchableOpacity>
 
-        {isOpen && (
-          <View style={dropdownStyles.optionsContainer}>
-            {options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={dropdownStyles.option}
-                onPress={() => {
-                  setSelectedOption(option);
-                  setIsOpen(false);
-                }}
-              >
-                <Text style={dropdownStyles.optionText}>{option}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
-
-      {/* Title Section */}
-      <View style={titleStyles.container}>
-        <Text style={titleStyles.label}>Title</Text>
-        <View style={titleStyles.inputBox}>
-          <TextInput
-            style={titleStyles.input}
-            placeholder="Enter your title..."
-            placeholderTextColor="#999"
-            value={title}
-            onChangeText={setTitle}
-          />
-        </View>
-      </View>
-
-      {/* Description Section */}
-      <View style={descriptionStyles.container}>
-        <Text style={descriptionStyles.label}>Description</Text>
-        <View style={descriptionStyles.inputBox}>
-          <TextInput
-            style={descriptionStyles.input}
-            placeholder="Enter your description..."
-            placeholderTextColor="#999"
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top"
-            value={description}
-            onChangeText={setDescription}
-          />
-        </View>
-      </View>
-
-      {/* Upload Image Section */}
-      <View style={uploadStyles.container}>
-        <Text style={uploadStyles.label}>Upload Image</Text>
-        <TouchableOpacity style={uploadStyles.uploadBox} onPress={handleUploadImage}>
-          {selectedImage ? (
-            <Image source={{ uri: selectedImage }} style={uploadStyles.previewImage} />
-          ) : (
-            <>
-              <MaterialIcons name="image" size={50} color="#581380" style={uploadStyles.imageIcon} />
-              <View style={uploadStyles.plusIcon}>
-                <Ionicons name="add" size={20} color="white" />
-              </View>
-            </>
+          {isOpen && (
+            <View style={dropdownStyles.optionsContainer}>
+              {options.map((option, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={dropdownStyles.option}
+                  onPress={() => {
+                    setSelectedOption(option);
+                    setIsOpen(false);
+                  }}
+                >
+                  <Text style={dropdownStyles.optionText}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           )}
-        </TouchableOpacity>
-      </View>
+        </View>
 
-      {/* Quantity and Deadline Section */}
-      <View style={inputGroupStyles.container}>
-        {/* Quantity Needed */}
-        <View style={inputGroupStyles.inputContainer}>
-          <Text style={inputGroupStyles.label}>Quantity needed</Text>
-          <View style={inputGroupStyles.currencyInput}>
-            <Text style={inputGroupStyles.currencySymbol}>DA</Text>
+        {/* Title Section */}
+        <View style={titleStyles.container}>
+          <Text style={titleStyles.label}>Title</Text>
+          <View style={titleStyles.inputBox}>
             <TextInput
-              style={inputGroupStyles.input}
-              placeholder="0"
-              keyboardType="numeric"
-              value={quantity}
-              onChangeText={setQuantity}
+              style={titleStyles.input}
+              placeholder="Enter your title..."
+              placeholderTextColor="#999"
+              value={title}
+              onChangeText={setTitle}
             />
           </View>
-          <View style={inputGroupStyles.underline} />
         </View>
 
-        {/* Deadline */}
-        <View style={inputGroupStyles.inputContainer}>
-          <Text style={inputGroupStyles.label}>Dead Line</Text>
-          <TextInput
-            style={[inputGroupStyles.input, { textAlign: 'center' }]}
-            placeholder="dd/mm/yyyy"
-            value={deadline}
-            onChangeText={handleDeadlineChange}
-            keyboardType="number-pad"
-            maxLength={10}
-          />
-          <View style={inputGroupStyles.underline} />
+        {/* Description Section */}
+        <View style={descriptionStyles.container}>
+          <Text style={descriptionStyles.label}>Description</Text>
+          <View style={descriptionStyles.inputBox}>
+            <TextInput
+              style={descriptionStyles.input}
+              placeholder="Enter your description..."
+              placeholderTextColor="#999"
+              multiline={true}
+              numberOfLines={4}
+              textAlignVertical="top"
+              value={description}
+              onChangeText={setDescription}
+            />
+          </View>
         </View>
-      </View>
-       {/* Add this Post Button at the end */}
-      <View style={postButtonStyles.container}>
-        <TouchableOpacity onPress={handlePost}>
-          <LinearGradient
-            colors={['#CDBDEC', '#7E4ACA', '#4E0976']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={postButtonStyles.button}
-          >
-            <Text style={postButtonStyles.text}>Post</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
-      <View style={footerStyles.container}>
+
+        {/* Upload Image Section */}
+        <View style={uploadStyles.container}>
+          <Text style={uploadStyles.label}>Upload Image</Text>
+          <TouchableOpacity style={uploadStyles.uploadBox} onPress={handleUploadImage}>
+            {selectedImage ? (
+              <Image source={{ uri: selectedImage }} style={uploadStyles.previewImage} />
+            ) : (
+              <>
+                <MaterialIcons name="image" size={50} color="#581380" style={uploadStyles.imageIcon} />
+                <View style={uploadStyles.plusIcon}>
+                  <Ionicons name="add" size={20} color="white" />
+                </View>
+              </>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Quantity and Deadline Section */}
+        <View style={inputGroupStyles.container}>
+          {/* Quantity Needed */}
+          <View style={inputGroupStyles.inputContainer}>
+            <Text style={inputGroupStyles.label}>Quantity needed</Text>
+            <View style={inputGroupStyles.currencyInput}>
+              <Text style={inputGroupStyles.currencySymbol}>DA</Text>
+              <TextInput
+                style={inputGroupStyles.input}
+                placeholder="0"
+                keyboardType="numeric"
+                value={quantity}
+                onChangeText={setQuantity}
+              />
+            </View>
+            <View style={inputGroupStyles.underline} />
+          </View>
+
+          {/* Deadline */}
+          <View style={inputGroupStyles.inputContainer}>
+            <Text style={inputGroupStyles.label}>Dead Line</Text>
+            <TextInput
+              style={[inputGroupStyles.input, { textAlign: 'center' }]}
+              placeholder="dd/mm/yyyy"
+              value={deadline}
+              onChangeText={handleDeadlineChange}
+              keyboardType="number-pad"
+              maxLength={10}
+            />
+            <View style={inputGroupStyles.underline} />
+          </View>
+        </View>
+
+        {/* Post Button */}
+        <View style={postButtonStyles.container}>
+          <TouchableOpacity onPress={handlePost}>
+            <LinearGradient
+              colors={['#CDBDEC', '#7E4ACA', '#4E0976']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={postButtonStyles.button}
+            >
+              <Text style={postButtonStyles.text}>Post</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+
+        {/* Footer */}
+        <View style={footerStyles.container}>
           <Text style={footerStyles.text}>
             <Text style={footerStyles.khText}>.Kh</Text>
             <Text style={footerStyles.dzText}>air DZ.</Text>
@@ -208,6 +277,7 @@ const NewProject = () => {
     </KeyboardAvoidingView>
   );
 };
+
 // Styles
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -235,7 +305,6 @@ const styles = StyleSheet.create({
     fontSize: 30, color: '#581380',
     fontWeight: 'bold',
   },
-
 });
 
 const dropdownStyles = StyleSheet.create({
@@ -433,6 +502,9 @@ const inputGroupStyles = StyleSheet.create({
     marginTop: 5,
   },
 });
+
+
+
 const postButtonStyles = StyleSheet.create({
   container: {
     position: 'absolute',

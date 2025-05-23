@@ -79,10 +79,10 @@ const styles = StyleSheet.create({
     
   },
   logo: {
-    width: 270,
+    width: 230,
     height: 270,
-    marginTop:'40%',
-    marginLeft:120,
+    marginTop:'30%',
+    marginLeft:140,
     justifyContent:'center',
     
     

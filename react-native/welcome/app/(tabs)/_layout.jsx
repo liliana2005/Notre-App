@@ -20,12 +20,12 @@ const CustomTabBar = ({ state, descriptors, navigation }) => {
       {/* Bottom Tabs */}
       <View style={styles.innerTabBar}>
         {state.routes
-         .filter(route => !["personalinfo", "changepassword","customerservice","creditcard","details"].includes(route.name))
+         .filter(route => !["personalinfo", "changepassword","customerservice","creditcard","donnation","details"].includes(route.name))
         .map((route, index) => {
           const { options } = descriptors[route.key];
           const label = route.name;
           const profileScreens = ["profile", "personalinfo", "changepassword", "customerservice","creditcard" ];
-          const homeScreens =["home","details"];
+          const homeScreens =["home","donnation"];
 
          
 

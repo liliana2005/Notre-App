@@ -13,8 +13,9 @@ const categories = [
 
 export default function App() {
    const router=useRouter();
-       const details =()=>{
-        router.push("/(tabs)/details")
+      
+       const donnation =()=>{
+        router.push("/(tabs)/donnation")
        };
   return (
     <View style={styles.container}>
@@ -41,7 +42,7 @@ export default function App() {
 
       {/* Images */}
       <ScrollView contentContainerStyle={styles.imageScroll}>
-        <TouchableOpacity onPress={details}>
+        <TouchableOpacity onPress={donnation}>
         <View style={styles.imageContainer} >
           <Image source={require('@/assets/images/projectpho1.png')} style={styles.photo} />
         </View>

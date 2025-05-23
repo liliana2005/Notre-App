@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Image, StyleSheet, Dimensions, TouchableOpacity, Text, FlatList, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Bar from './Bar';
+import { useRouter } from 'expo-router';
 const mockNotifications = [
   {
     id: '1',
@@ -42,7 +43,8 @@ const mockNotifications = [
         profilePic: require('@/assets/profile1.jpg'),
         action: 'donated',
         time : '20:00'},]
-const Notification = ({ navigation }) => {
+const Notification = () => {
+  const router = useRouter();
   return (
     <View style={styles.pageContainer}>
       {/* Background elements - moved to absolute positioning */}
@@ -51,7 +53,7 @@ const Notification = ({ navigation }) => {
 
       {/* Fixed Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={30} color='#581380' />
         </TouchableOpacity>
         <Text style={styles.headerText}>Notifications</Text>

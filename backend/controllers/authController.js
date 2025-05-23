@@ -34,7 +34,7 @@ const sendVerificationCode = asyncHandler(async (req,res)=>{
 
     let existingUser = await User.findOne({email});//verify if the user already exists
     if(existingUser){
-        return res.status(400).json({massage:"User already exists"});
+        return res.status(400).json({message:"User already exists"});
     }
       
     //Create verification code 
@@ -80,7 +80,7 @@ const sendVerificationCode = asyncHandler(async (req,res)=>{
 
 
     await transporter.sendMail(mailOptions);
-    res.status(201).json({message : "User registered. A verification code hes been sent to your email."})
+    res.status(201).json({message : "User registered. A verification code has been sent to your email."})
 
 });
   
@@ -100,19 +100,29 @@ const completeSignup = asyncHandler(async (req, res) => {
      
       const pending = await PendingVerification.findOne({ email });
 
-      if (!pending || pending.code !== Number(code) || pending.expiresAt < Date.now()) {
-        return res.status(400).json({ message: "Invalid or expired verification code." });
+      //if (!pending || pending.code !== Number(code) || pending.expiresAt < Date.now()) {
+        if (!pending || String(pending.code) !== String(code) || pending.expiresAt < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired verification code." });
       }
 
 
       
       
+     {/* const newUser = new User({
+         fullName : pending.fullName,
+         email: pending.email,
+         password,
+         emailVerified: true, // optional
+       });*/}
+       
+
       const newUser = new User({
-        fullName : pending.fullName,
-        email: pending.email,
-        password,
-        emailVerified: true, // optional
+       fullName : pending.fullName,
+       email: pending.email.toLowerCase(),
+       password,
+       emailVerified: true,
       });
+
 
       try {
         await newUser.save();
@@ -122,7 +132,23 @@ const completeSignup = asyncHandler(async (req, res) => {
       }
       await PendingVerification.deleteOne({ email });
     
-      res.status(201).json({ message: "Signup successful!" });
+     // res.status(201).json({ message: "Signup successful!" });
+     const token = jwt.sign({ id: newUser._id, role: newUser.role } , process.env.ACCESS_TOKEN_SECRET, {
+
+       expiresIn: "1h",
+    });
+    
+    res.status(201).json({ 
+      message: "Signup successful!",
+      token,
+      user: {
+        id: newUser._id,
+        fullName: newUser.fullName,
+        email: newUser.email,
+        // include other fields if needed
+      }
+    });
+    
     }); 
 
 
@@ -136,7 +162,8 @@ const login = asyncHandler(async (req,res)=>{
         throw new Error("email and password are required")
     }
 
-    let user = await User.findOne({email});
+    const normalizedEmail = email.toLowerCase(); 
+    let user = await User.findOne({email:normalizedEmail});
     if(!user){
         return res.status(400).json({message:"User not found"});
     }
@@ -153,7 +180,7 @@ const login = asyncHandler(async (req,res)=>{
              id:user.id,
              fullName : user.fullName , 
              email: user.email,
-             gender: user.gender,
+            
               phone: user.phone
             }
         });

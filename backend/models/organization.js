@@ -5,6 +5,7 @@ const organizationSchema = new mongoose.Schema({
     name:{type: String, required:true},
     email:{type:String, required:true, unique:true},
     phone:{type:String },
+    documentationLink: { type:String, required: true },//i add this 
     address:{type:String},
     expoPushToken: String,
     description:{type:String},
